@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="d-flex align-items-center justify-content-center min-vh-100">
+    <div class="card p-5" style="width: 550px;">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-info alert-dismissible fade show mb-3" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <div class="mb-4">
+            <span class="badge bg-primary mb-2">Step 4 of 4</span>
+            <h3>Choose your role</h3>
+        </div>
+        <form action="/select_role" method="POST">
+            <div class="row g-3 mb-4">
+                <div class="col-6">
+                    <input type="radio" class="btn-check" name="role" id="user" value="user" checked>
+                    <label class="btn btn-outline-light text-dark border p-4 w-100 text-start" for="user">
+                        <i class="bi bi-person fs-2 text-primary"></i><br><strong>User</strong>
+                    </label>
+                </div>
+                <div class="col-6">
+                    <input type="radio" class="btn-check" name="role" id="org" value="organizer">
+                    <label class="btn btn-outline-light text-dark border p-4 w-100 text-start" for="org">
+                        <i class="bi bi-calendar-event fs-2 text-primary"></i><br><strong>Organizer</strong>
+                    </label>
+                </div>
+            </div>
+            <button class="btn btn-primary w-100">Get Started</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

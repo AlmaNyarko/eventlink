@@ -1,0 +1,501 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="d-flex">
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="p-4">
+            <!-- Logo -->
+            <div class="mb-5">
+                <h3 class="sidebar-logo">✨ EventLink</h3>
+                <span class="badge bg-{% if session.role == 'organizer' %}primary{% else %}secondary{% endif %}">
+                    {{ session.role|upper }}
+                </span>
+            </div>
+            
+            <!-- Navigation Menu -->
+            <nav class="sidebar-nav">
+                <a href="{{ url_for('dashboard') }}" class="nav-link">
+                    <i class="bi bi-house-door me-2"></i> Home
+                </a>
+                <a href="{{ url_for('events_list') }}" class="nav-link">
+                    <i class="bi bi-calendar-event me-2"></i> Events
+                </a>
+                <a href="{{ url_for('my_tickets') }}" class="nav-link">
+                    <i class="bi bi-ticket-perforated me-2"></i> My Tickets
+                </a>
+                {% if session.role == 'organizer' %}
+                <a href="{{ url_for('events_list') }}" class="nav-link">
+                    <i class="bi bi-calendar-plus me-2"></i> My Events
+                </a>
+                {% endif %}
+                <a href="{{ url_for('profile') }}" class="nav-link">
+                    <i class="bi bi-person me-2"></i> Profile
+                </a>
+                <a href="{{ url_for('settings') }}" class="nav-link active">
+                    <i class="bi bi-gear me-2"></i> Settings
+                </a>
+            </nav>
+            
+            <!-- Logout -->
+            <div class="mt-auto pt-5">
+                <a href="/logout" class="nav-link text-danger">
+                    <i class="bi bi-box-arrow-right me-2"></i> Logout
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="flex-grow-1 p-4" style="background-color: var(--color-bg-main);">
+        <!-- Top Navigation Bar -->
+        <div class="top-nav d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="page-header mb-0">Settings</h2>
+                <p class="text-muted-custom mb-0">Manage your account preferences</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Settings Menu -->
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">Settings Menu</h6>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <button class="list-group-item list-group-item-action active" data-tab="account">
+                            <i class="bi bi-person me-2"></i> Account Settings
+                        </button>
+                        <button class="list-group-item list-group-item-action" data-tab="notifications">
+                            <i class="bi bi-bell me-2"></i> Notifications
+                        </button>
+                        <button class="list-group-item list-group-item-action" data-tab="privacy">
+                            <i class="bi bi-shield-lock me-2"></i> Privacy & Security
+                        </button>
+                        <button class="list-group-item list-group-item-action" data-tab="preferences">
+                            <i class="bi bi-sliders me-2"></i> Preferences
+                        </button>
+                        <button class="list-group-item list-group-item-action" data-tab="payment">
+                            <i class="bi bi-credit-card me-2"></i> Payment Methods
+                        </button>
+                        {% if session.role == 'organizer' %}
+                        <button class="list-group-item list-group-item-action" data-tab="organizer">
+                            <i class="bi bi-calendar-event me-2"></i> Organizer Settings
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Content -->
+            <div class="col-md-9">
+                <!-- Account Settings Tab -->
+                <div class="tab-content" id="account">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Account Settings</h5>
+                        </div>
+                        <div class="card-body">
+                            <form>
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-medium">Email Address</label>
+                                        <input type="email" class="form-control" value="{{ user.email }}">
+                                        <div class="form-text">This is your primary contact email</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-medium">Account Type</label>
+                                        <select class="form-select">
+                                            <option {% if user.role == 'user' %}selected{% endif %}>Regular User</option>
+                                            <option {% if user.role == 'organizer' %}selected{% endif %}>Event Organizer</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label class="form-label fw-medium">Password</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" value="••••••••">
+                                        <button class="btn btn-outline-secondary" type="button">Change Password</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label class="form-label fw-medium">Two-Factor Authentication</label>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="twoFactorAuth">
+                                        <label class="form-check-label" for="twoFactorAuth">
+                                            Enable two-factor authentication for enhanced security
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-primary">Save Changes</button>
+                                    <button type="button" class="btn btn-outline-danger">Delete Account</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notifications Tab -->
+                <div class="tab-content d-none" id="notifications">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Notification Preferences</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-4">
+                                <h6>Email Notifications</h6>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="eventUpdates" checked>
+                                    <label class="form-check-label" for="eventUpdates">
+                                        Event updates and reminders
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="newEvents" checked>
+                                    <label class="form-check-label" for="newEvents">
+                                        New events in my interests
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="promotions">
+                                    <label class="form-check-label" for="promotions">
+                                        Promotional offers and discounts
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h6>Push Notifications</h6>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="pushReminders" checked>
+                                    <label class="form-check-label" for="pushReminders">
+                                        Event reminders
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="pushUpdates">
+                                    <label class="form-check-label" for="pushUpdates">
+                                        Last-minute event changes
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <button type="button" class="btn btn-primary">Save Notification Settings</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Privacy & Security Tab -->
+                <div class="tab-content d-none" id="privacy">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Privacy & Security</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-4">
+                                <h6>Data Privacy</h6>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="shareData">
+                                    <label class="form-check-label" for="shareData">
+                                        Allow EventLink to use my data for personalized recommendations
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="publicProfile">
+                                    <label class="form-check-label" for="publicProfile">
+                                        Make my profile publicly visible
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h6>Login Security</h6>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="rememberDevice" checked>
+                                    <label class="form-check-label" for="rememberDevice">
+                                        Remember this device
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="sessionTimeout">
+                                    <label class="form-check-label" for="sessionTimeout">
+                                        Automatically log out after 30 minutes of inactivity
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h6>Connected Accounts</h6>
+                                <div class="d-flex align-items-center justify-content-between p-3 border rounded mb-2">
+                                    <div>
+                                        <i class="bi bi-google text-danger me-2"></i>
+                                        Google Account
+                                        <div class="small text-muted">john.doe@gmail.com</div>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-danger">Disconnect</button>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between p-3 border rounded">
+                                    <div>
+                                        <i class="bi bi-facebook text-primary me-2"></i>
+                                        Facebook Account
+                                        <div class="small text-muted">Not connected</div>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-primary">Connect</button>
+                                </div>
+                            </div>
+                            
+                            <button type="button" class="btn btn-primary">Save Privacy Settings</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preferences Tab -->
+                <div class="tab-content d-none" id="preferences">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Preferences</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Preferred Language</label>
+                                    <select class="form-select">
+                                        <option>English</option>
+                                        <option>Spanish</option>
+                                        <option>French</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Time Zone</label>
+                                    <select class="form-select">
+                                        <option>Eastern Time (ET)</option>
+                                        <option>Central Time (CT)</option>
+                                        <option>Pacific Time (PT)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h6>Event Preferences</h6>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="musicEvents" checked>
+                                    <label class="form-check-label" for="musicEvents">
+                                        Music events
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="foodEvents">
+                                    <label class="form-check-label" for="foodEvents">
+                                        Food & drink events
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="sportsEvents">
+                                    <label class="form-check-label" for="sportsEvents">
+                                        Sports events
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h6>Communication Preferences</h6>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="contactMethod" id="emailContact" checked>
+                                    <label class="form-check-label" for="emailContact">
+                                        Email only
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="contactMethod" id="smsContact">
+                                    <label class="form-check-label" for="smsContact">
+                                        SMS + Email
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <button type="button" class="btn btn-primary">Save Preferences</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Methods Tab -->
+                <div class="tab-content d-none" id="payment">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Payment Methods</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle me-2"></i>
+                                Card details are required to purchase tickets. Your payment information is securely stored.
+                            </div>
+                            
+                            {% if user.payment_method %}
+                            <div class="card border-success mb-4">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="fw-bold text-success">Active Payment Method</h6>
+                                            <p class="mb-0">{{ user.payment_method }}</p>
+                                            <small class="text-muted">Card ending in {{ user.card_last_four }}</small>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#removeCardModal">
+                                            Remove Card
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h6 class="card-title mb-0">{% if user.payment_method %}Add New Card{% else %}Add Payment Method{% endif %}</h6>
+                                </div>
+                                <div class="card-body">
+                                    <form action="{{ url_for('save_payment_method') }}" method="POST">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-medium">Cardholder Name</label>
+                                            <input type="text" name="cardholder_name" class="form-control" placeholder="John Doe" required>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label fw-medium">Card Number</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">
+                                                    <i class="bi bi-credit-card"></i>
+                                                </span>
+                                                <input type="text" name="card_number" class="form-control" 
+                                                       placeholder="1234 5678 9012 3456" maxlength="19"
+                                                       oninput="formatCardNumber(this)" required>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-medium">Expiry Date</label>
+                                                <input type="text" name="expiry_date" class="form-control" 
+                                                       placeholder="MM/YY" maxlength="5"
+                                                       oninput="formatExpiry(this)" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-medium">CVV</label>
+                                                <input type="text" name="cvv" class="form-control" 
+                                                       placeholder="123" maxlength="4" required>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" type="checkbox" id="saveCard" checked required>
+                                            <label class="form-check-label" for="saveCard">
+                                                Save this card for future purchases
+                                            </label>
+                                        </div>
+                                        
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="bi bi-save me-2"></i>
+                                            Save Payment Method
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            
+                            <div class="border rounded p-3">
+                                <h6 class="fw-bold mb-2">Security Information</h6>
+                                <ul class="mb-0 small">
+                                    <li>Your card details are encrypted and securely stored</li>
+                                    <li>We do not store full card numbers, only the last 4 digits</li>
+                                    <li>All transactions are processed through secure payment gateways</li>
+                                    <li>You can remove your card information at any time</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Organizer Settings Tab (Only for organizers) -->
+                {% if session.role == 'organizer' %}
+                <div class="tab-content d-none" id="organizer">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Organizer Settings</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-4">
+                                <h6>Event Management</h6>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="autoApprove" checked>
+                                    <label class="form-check-label" for="autoApprove">
+                                        Automatically approve event submissions
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="sendReports">
+                                    <label class="form-check-label" for="sendReports">
+                                        Send weekly event performance reports
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h6>Pricing & Fees</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Service Fee Percentage</label>
+                                        <input type="number" class="form-control" value="10" min="0" max="20">
+                                        <div class="form-text">Percentage taken from ticket sales</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h6>Payment Settings</h6>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="instantPayout" checked>
+                                    <label class="form-check-label" for="instantPayout">
+                                        Enable instant payout to bank account
+                                    </label>
+                                </div>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">Bank Account</span>
+                                    <input type="text" class="form-control" placeholder="**** **** **** 1234">
+                                    <button class="btn btn-outline-secondary">Update</button>
+                                </div>
+                            </div>
+                            
+                            <button type="button" class="btn btn-primary">Save Organizer Settings</button>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Tab switching functionality
+document.querySelectorAll('[data-tab]').forEach(button => {
+    button.addEventListener('click', function() {
+        const tabId = this.getAttribute('data-tab');
+        
+        // Hide all tab contents
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.add('d-none');
+        });
+        
+        // Show selected tab content
+        document.getElementById(tabId).classList.remove('d-none');
+        
+        // Update active state
+        document.querySelectorAll('[data-tab]').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        this.classList.add('active');
+    });
+});
+</script>
+{% endblock %}

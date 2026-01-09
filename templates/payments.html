@@ -1,0 +1,205 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="d-flex">
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="p-4">
+            <!-- Logo -->
+            <div class="mb-5">
+                <h3 class="sidebar-logo">✨ EventLink</h3>
+                <span class="badge bg-primary">ORGANIZER</span>
+            </div>
+            
+            <!-- Navigation Menu -->
+            <nav class="sidebar-nav">
+                <a href="{{ url_for('dashboard') }}" class="nav-link">
+                    <i class="bi bi-house-door me-2"></i> Home
+                </a>
+                <a href="{{ url_for('events_list') }}" class="nav-link">
+                    <i class="bi bi-calendar-event me-2"></i> My Events
+                </a>
+                <a href="{{ url_for('payments') }}" class="nav-link active">
+                    <i class="bi bi-credit-card me-2"></i> Payments
+                </a>
+                <a href="{{ url_for('profile') }}" class="nav-link">
+                    <i class="bi bi-person me-2"></i> Profile
+                </a>
+                <a href="{{ url_for('settings') }}" class="nav-link">
+                    <i class="bi bi-gear me-2"></i> Settings
+                </a>
+            </nav>
+            
+            <!-- Logout -->
+            <div class="mt-auto pt-5">
+                <a href="/logout" class="nav-link text-danger">
+                    <i class="bi bi-box-arrow-right me-2"></i> Logout
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="flex-grow-1 p-4" style="background-color: var(--color-bg-main);">
+        <!-- Top Navigation Bar -->
+        <div class="top-nav d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="page-header mb-0">Payments Dashboard</h2>
+                <p class="text-muted-custom mb-0">Track your event revenue and payouts</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#payoutModal">
+                    <i class="bi bi-cash"></i> Request Payout
+                </button>
+                <button class="btn btn-outline-secondary">
+                    <i class="bi bi-download"></i> Export Report
+                </button>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-3">
+                <div class="stat-card text-center">
+                    <div class="fs-1 fw-bold text-success mb-2">${{ "%.2f"|format(total_gross) }}</div>
+                    <div class="fw-semibold mb-1">Total Gross Revenue</div>
+                    <div class="text-muted-custom small">All-time earnings</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card text-center">
+                    <div class="fs-1 fw-bold text-primary mb-2">${{ "%.2f"|format(total_net) }}</div>
+                    <div class="fw-semibold mb-1">Net Revenue</div>
+                    <div class="text-muted-custom small">After fees</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card text-center">
+                    <div class="fs-1 fw-bold text-warning mb-2">${{ "%.2f"|format(total_fees) }}</div>
+                    <div class="fw-semibold mb-1">Service Fees</div>
+                    <div class="text-muted-custom small">10% processing fee</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card text-center">
+                    <div class="fs-1 fw-bold text-info mb-2">$0.00</div>
+                    <div class="fw-semibold mb-1">Pending Payout</div>
+                    <div class="text-muted-custom small">Available balance</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment History -->
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Event Revenue Breakdown</h5>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-sm btn-outline-secondary">Last 7 Days</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary">Last 30 Days</button>
+                        <button type="button" class="btn btn-sm btn-primary">All Time</button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if events %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Event Name</th>
+                                <th>Date</th>
+                                <th>Tickets Sold</th>
+                                <th>Gross Revenue</th>
+                                <th>Service Fee</th>
+                                <th>Net Revenue</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for event in events %}
+                            <tr>
+                                <td>
+                                    <div class="fw-medium">{{ event.title }}</div>
+                                    <div class="small text-muted">{{ event.location }}</div>
+                                </td>
+                                <td>{{ event.date_time[:10] }}</td>
+                                <td>{{ event.total_tickets_sold or 0 }}</td>
+                                <td class="fw-medium">${{ "%.2f"|format(event.gross_revenue or 0) }}</td>
+                                <td class="text-warning">-${{ "%.2f"|format((event.gross_revenue or 0) * 0.1) }}</td>
+                                <td class="fw-bold text-success">${{ "%.2f"|format(event.net_revenue or 0) }}</td>
+                                <td>
+                                    <span class="badge bg-{% if event.date_time > now().strftime('%Y-%m-%d') %}warning{% else %}success{% endif %}">
+                                        {% if event.date_time > now().strftime('%Y-%m-%d') %}Upcoming{% else %}Completed{% endif %}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-currency-dollar display-1 text-muted mb-3"></i>
+                    <h4>No events yet</h4>
+                    <p class="text-muted-custom">Create events to start earning revenue!</p>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+                        <i class="bi bi-plus-lg"></i> Create Event
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Payout Request Modal -->
+<div class="modal fade" id="payoutModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Request Payout</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Payouts are processed within 3-5 business days. Standard fee applies.
+                </div>
+                
+                <form action="{{ url_for('organizer_checkout') }}" method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Available Balance</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="text" class="form-control" value="{{ "%.2f"|format(total_net) }}" readonly>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Payout Amount</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" name="amount" class="form-control" placeholder="Enter amount" 
+                                   step="0.01" min="10" max="{{ total_net }}" required>
+                        </div>
+                        <div class="form-text">Minimum payout amount is $10.00</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Destination</label>
+                        <select name="destination" class="form-select" required>
+                            <option value="">Select destination</option>
+                            <option value="Bank Account (**** **** **** 1234)">Bank Account (**** **** **** 1234)</option>
+                            <option value="PayPal (organizer@email.com)">PayPal (organizer@email.com)</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary">Request Payout</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

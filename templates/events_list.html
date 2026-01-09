@@ -1,0 +1,202 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row">
+    <div class="col-md-2 sidebar p-4">
+        <h5 class="fw-bold text-primary mb-4">EventLink</h5>
+        <div class="nav flex-column">
+            <a href="{{ url_for('dashboard') }}" class="nav-link mb-2">Dashboard</a>
+            <a href="{{ url_for('events_list') }}" class="nav-link fw-bold">Browse Events</a>
+        </div>
+        <a href="/logout" class="nav-link mt-5 text-danger">Logout</a>
+    </div>
+
+    <div class="col-md-10 p-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold">Discover Events</h2>
+                <p class="text-muted">Find amazing events happening near you</p>
+            </div>
+            {% if session.role == 'organizer' %}
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">+ Create Event</button>
+            {% endif %}
+        </div>
+
+        <!-- Filters -->
+        <div class="card p-4 mb-4">
+            <form method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Search Events</label>
+                    <input type="text" name="search" class="form-control" placeholder="Search by title, description, location..." 
+                           value="{{ current_search }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Category</label>
+                    <select name="category" class="form-control">
+                        <option value="">All Categories</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.category }}" {% if current_category == cat.category %}selected{% endif %}>
+                            {{ cat.category }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </div>
+                {% if current_category or current_search %}
+                <div class="col-md-3 d-flex align-items-end">
+                    <a href="{{ url_for('events_list') }}" class="btn btn-outline-secondary w-100">Clear Filters</a>
+                </div>
+                {% endif %}
+            </form>
+        </div>
+
+        <!-- Events Grid -->
+        <div class="row g-4">
+            {% for event in events %}
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm hover-card">
+                    <img src="{{ event.image_url }}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="{{ event.title }}">
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title fw-bold">{{ event.title }}</h5>
+                            <span class="badge bg-primary">${{ "%.2f"|format(event.price) }}</span>
+                        </div>
+                        
+                        <p class="card-text text-muted small flex-grow-1">
+                            {% if event.description %}
+                                {{ event.description[:100] }}{% if event.description|length > 100 %}...{% endif %}
+                            {% else %}
+                                No description available
+                            {% endif %}
+                        </p>
+                        
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-between text-muted small mb-3">
+                                <span><i class="bi bi-geo-alt"></i> {{ event.location }}</span>
+                                <span><i class="bi bi-calendar"></i> {{ event.date_time }}</span>
+                            </div>
+                            
+                            {% if event.category %}
+                            <span class="badge bg-secondary mb-3">{{ event.category }}</span>
+                            {% endif %}
+                            
+                            <div class="d-grid gap-2">
+                                <a href="{{ url_for('event_detail', event_id=event.id) }}" class="btn btn-outline-primary btn-sm">
+                                    View Details
+                                </a>
+                                {% if session.user_id != event.organizer_id %}
+                                    {% if not session.user_id %}
+                                        <a href="{{ url_for('login') }}" class="btn btn-primary btn-sm">Buy Ticket</a>
+                                    {% else %}
+                                        <a href="{{ url_for('buy_ticket', event_id=event.id) }}" class="btn btn-primary btn-sm">Buy Ticket</a>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-12">
+                <div class="card p-5 text-center">
+                    <i class="bi bi-calendar-x display-1 text-muted mb-3"></i>
+                    <h4>No events found</h4>
+                    <p class="text-muted">
+                        {% if current_category or current_search %}
+                            Try adjusting your filters or search terms
+                        {% else %}
+                            Be the first to create an event!
+                        {% endif %}
+                    </p>
+                    {% if session.role == 'organizer' %}
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">
+                        Create Your First Event
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Create Event Modal -->
+{% if session.role == 'organizer' %}
+<div class="modal fade" id="createModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <form action="/create_event" method="POST" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create New Event</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Event Title *</label>
+                        <input type="text" name="title" class="form-control" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Category</label>
+                        <select name="category" class="form-control">
+                            <option value="">Select Category</option>
+                            <option value="Concert">Concert</option>
+                            <option value="Conference">Conference</option>
+                            <option value="Workshop">Workshop</option>
+                            <option value="Sports">Sports</option>
+                            <option value="Arts">Arts</option>
+                            <option value="Food & Drink">Food & Drink</option>
+                            <option value="Networking">Networking</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" class="form-control" rows="3" placeholder="Describe your event..."></textarea>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Location *</label>
+                        <input type="text" name="location" class="form-control" required placeholder="Venue address">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Date & Time *</label>
+                        <input type="datetime-local" name="date_time" class="form-control" required>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Price ($) *</label>
+                        <input type="number" name="price" step="0.01" min="0" class="form-control" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Capacity</label>
+                        <input type="number" name="capacity" min="1" class="form-control" placeholder="Leave blank for unlimited">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary">Create Event</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+<style>
+.hover-card:hover {
+    transform: translateY(-5px);
+    transition: transform 0.2s ease-in-out;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+.card-img-top {
+    border-top-left-radius: calc(0.375rem - 1px);
+    border-top-right-radius: calc(0.375rem - 1px);
+}
+</style>
+{% endblock %}

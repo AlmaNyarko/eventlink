@@ -1,0 +1,146 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="d-flex">
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="p-4">
+            <!-- Logo -->
+            <div class="mb-5">
+                <h3 class="sidebar-logo">✨ EventLink</h3>
+                <span class="badge bg-primary">ORGANIZER</span>
+            </div>
+            
+            <!-- Navigation Menu -->
+            <nav class="sidebar-nav">
+                <a href="{{ url_for('dashboard') }}" class="nav-link active">
+                    <i class="bi bi-house-door me-2"></i> Home
+                </a>
+                <a href="{{ url_for('events_list') }}" class="nav-link">
+                    <i class="bi bi-calendar-event me-2"></i> My Events
+                </a>
+                <a href="{{ url_for('payments') }}" class="nav-link">
+                    <i class="bi bi-credit-card me-2"></i> Payments
+                </a>
+                <a href="{{ url_for('profile') }}" class="nav-link">
+                    <i class="bi bi-person me-2"></i> Profile
+                </a>
+                <a href="{{ url_for('settings') }}" class="nav-link">
+                    <i class="bi bi-gear me-2"></i> Settings
+                </a>
+            </nav>
+            
+            <!-- Logout -->
+            <div class="mt-auto pt-5">
+                <a href="/logout" class="nav-link text-danger">
+                    <i class="bi bi-box-arrow-right me-2"></i> Logout
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="flex-grow-1 p-4" style="background-color: var(--color-bg-main);">
+        <!-- Top Navigation Bar -->
+        <div class="top-nav d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="page-header mb-0">Dashboard</h2>
+                <p class="text-muted-custom mb-0">Manage your events and track performance</p>
+            </div>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">
+                <i class="bi bi-plus-lg"></i> Create Event
+            </button>
+        </div>
+
+        <!-- Stats Cards (Modern Design) -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-3">
+                <div class="stat-card text-center">
+                    <div class="fs-1 fw-bold text-primary mb-2">{{ events|length }}</div>
+                    <div class="fw-semibold mb-1">Total Events</div>
+                    <div class="text-success small">+3 this month</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card text-center">
+                    <div class="fs-1 fw-bold text-success mb-2">${{ "%.0f"|format(revenue) }}</div>
+                    <div class="fw-semibold mb-1">Total Revenue</div>
+                    <div class="text-success small">+$85k this month</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card text-center">
+                    <div class="fs-1 fw-bold text-info mb-2">{{ attendees }}</div>
+                    <div class="fw-semibold mb-1">Total Attendees</div>
+                    <div class="text-success small">+1,250 this month</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card text-center">
+                    <div class="fs-1 fw-bold text-warning mb-2">
+                        {% set upcoming_events = events|selectattr("date_time", ">", "now")|list|length %}
+                        {{ upcoming_events }}
+                    </div>
+                    <div class="fw-semibold mb-1">Upcoming Events</div>
+                    <div class="text-muted-custom small">Next 30 days</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Your Upcoming Events Section -->
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="section-header mb-0">Your Upcoming Events</h3>
+                    <a href="{{ url_for('events_list') }}" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-eye"></i> View All Events
+                    </a>
+                </div>
+                
+                <div class="mb-4">
+                {% if events %}
+                {% for event in events[:3] %}
+                <div class="event-row d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="fw-bold mb-1">{{ event.title }}</h5>
+                        <p class="text-muted-custom mb-0">
+                            <i class="bi bi-calendar me-1"></i> {{ event.date_time }} • 
+                            <i class="bi bi-geo-alt me-1"></i> {{ event.location }}
+                        </p>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <span class="fw-bold me-4">${{ "%.0f"|format(event.price * 15) }}</span>
+                        <a href="{{ url_for('event_detail', event_id=event.id) }}" class="btn btn-sm btn-outline-primary">View</a>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-calendar-x display-1 text-muted mb-3"></i>
+                    <h4>No events yet</h4>
+                    <p class="text-muted-custom">Create your first event to get started!</p>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">
+                        <i class="bi bi-plus-lg"></i> Create Your First Event
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="createModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="/create_event" method="POST" class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">Create Event</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <div class="mb-3"><label>Title</label><input type="text" name="title" class="form-control" required></div>
+                <div class="mb-3"><label>Location</label><input type="text" name="location" class="form-control" required></div>
+                <div class="mb-3"><label>Date</label><input type="datetime-local" name="date_time" class="form-control" required></div>
+                <div class="mb-3"><label>Price ($)</label><input type="number" name="price" step="0.01" class="form-control" required></div>
+                <div class="mb-3"><label>Category</label><input type="text" name="category" class="form-control"></div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-primary">Publish</button></div>
+        </form>
+    </div>
+</div>
+{% endblock %}

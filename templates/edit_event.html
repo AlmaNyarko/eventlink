@@ -1,0 +1,92 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row">
+    <div class="col-md-2 sidebar p-4">
+        <h5 class="fw-bold text-primary mb-4">EventLink</h5>
+        <div class="nav flex-column">
+            <a href="{{ url_for('dashboard') }}" class="nav-link mb-2">Dashboard</a>
+            <a href="{{ url_for('events_list') }}" class="nav-link">Browse Events</a>
+        </div>
+        <a href="/logout" class="nav-link mt-5 text-danger">Logout</a>
+    </div>
+
+    <div class="col-md-10 p-5">
+        <div class="mb-4">
+            <a href="{{ url_for('event_detail', event_id=event.id) }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Event
+            </a>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title mb-0">Edit Event</h2>
+            </div>
+            <form action="{{ url_for('edit_event', event_id=event.id) }}" method="POST">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Event Title *</label>
+                            <input type="text" name="title" class="form-control" value="{{ event.title }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Status</label>
+                            <select name="status" class="form-control">
+                                <option value="active" {% if event.status == 'active' %}selected{% endif %}>Active</option>
+                                <option value="cancelled" {% if event.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                                <option value="completed" {% if event.status == 'completed' %}selected{% endif %}>Completed</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-control" rows="4">{{ event.description or '' }}</textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Location *</label>
+                            <input type="text" name="location" class="form-control" value="{{ event.location }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Date & Time *</label>
+                            <input type="datetime-local" name="date_time" class="form-control" 
+                                   value="{{ event.date_time.replace(' ', 'T') }}" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Price ($) *</label>
+                            <input type="number" name="price" step="0.01" min="0" class="form-control" 
+                                   value="{{ event.price }}" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Capacity</label>
+                            <input type="number" name="capacity" min="1" class="form-control" 
+                                   value="{{ event.capacity or '' }}" placeholder="Leave blank for unlimited">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Category</label>
+                            <select name="category" class="form-control">
+                                <option value="">Select Category</option>
+                                {% for category in categories %}
+                                <option value="{{ category.name }}" {% if event.category == category.name %}selected{% endif %}>
+                                    {{ category.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('event_detail', event_id=event.id) }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Update Event</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

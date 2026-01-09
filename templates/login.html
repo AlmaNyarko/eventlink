@@ -1,0 +1,76 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="d-flex min-vh-100">
+    <!-- Left Side - Login Form -->
+    <div class="col-md-6 d-flex align-items-center justify-content-center" style="background-color: var(--color-bg-sidebar);">
+        <div class="card" style="width: 450px; padding: 2.5rem; margin: 2rem;">
+            <!-- Logo / Brand -->
+            <div class="text-center mb-4">
+                <h2 class="sidebar-logo">✨ EventLink</h2>
+            </div>
+
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-info alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% if mode == 'signup' %}
+            <!-- Signup Form -->
+            <h3 class="page-header mb-2">Create Account</h3>
+            <p class="text-muted-custom mb-4">Let's get to know you better</p>
+            <form action="/signup" method="POST">
+                <div class="mb-3">
+                    <label class="form-label fw-medium text-muted-custom">Full Name</label>
+                    <input type="text" name="full_name" class="form-control" placeholder="John Doe" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-medium text-muted-custom">Email address</label>
+                    <input type="email" name="email" class="form-control" required>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-medium text-muted-custom">Password</label>
+                    <input type="password" name="password" class="form-control" required>
+                </div>
+                <button class="btn btn-primary w-100 py-3 fw-semibold">Continue →</button>
+            </form>
+            <p class="mt-4 text-center text-muted-custom">Already have an account? <a href="/login" class="text-decoration-none" style="color: var(--color-primary);">Sign in</a></p>
+            
+            {% else %}
+            <!-- Login Form -->
+            <h3 class="page-header mb-2">Welcome back</h3>
+            <p class="text-muted-custom mb-4">Sign in to your account to continue</p>
+            <form action="/login" method="POST">
+                <div class="mb-3">
+                    <label class="form-label fw-medium text-muted-custom">Email address</label>
+                    <input type="email" name="email" class="form-control" required>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-medium text-muted-custom">Password</label>
+                    <input type="password" name="password" class="form-control" required>
+                </div>
+                <button class="btn btn-primary w-100 py-3 fw-semibold">Sign in →</button>
+            </form>
+            <p class="mt-4 text-center text-muted-custom">Don't have an account? <a href="/signup" class="text-decoration-none" style="color: var(--color-primary);">Sign up</a></p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Right Side - Branding -->
+    <div class="col-md-6 d-none d-md-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, var(--color-primary) 0%, #1e40af 100%);">
+        <div class="text-center text-white px-5">
+            <div class="mb-4">
+                <i class="bi bi-stars" style="font-size: 4rem;"></i>
+            </div>
+            <h2 class="display-5 fw-bold mb-3">Discover Amazing Events</h2>
+            <p class="lead opacity-90">Connect with events happening around you and create unforgettable experiences.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

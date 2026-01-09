@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>EventLink</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Design Constants from eventlink_modern.py -->
+    <style>
+        :root {
+            --color-bg-main: #f3f4f6;      /* Light gray background */
+            --color-bg-sidebar: #ffffff;   /* White sidebar */
+            --color-card: #ffffff;         /* White card background */
+            --color-primary: #2563eb;      /* EventLink Blue */
+            --color-text-main: #111827;    /* Dark text */
+            --color-text-muted: #6b7280;   /* Grey text */
+        }
+        
+        body { 
+            background-color: var(--color-bg-main); 
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; 
+            color: var(--color-text-main);
+        }
+        
+        /* Sidebar styling */
+        .sidebar { 
+            background: var(--color-bg-sidebar); 
+            min-height: 100vh; 
+            border-right: 1px solid #e5e7eb; 
+        }
+        
+        .sidebar-logo {
+            color: var(--color-primary);
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+        
+        .sidebar-nav .nav-link {
+            color: var(--color-text-main);
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            margin: 0.25rem 1rem;
+        }
+        
+        .sidebar-nav .nav-link:hover {
+            background-color: var(--color-bg-main);
+        }
+        
+        .sidebar-nav .nav-link.active {
+            background-color: var(--color-primary);
+            color: white;
+        }
+        
+        /* Card styling */
+        .card { 
+            border: none; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
+            background: var(--color-card);
+        }
+        
+        .stat-card {
+            background: var(--color-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.2s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+        }
+        
+        /* Button styling */
+        .btn-primary { 
+            background-color: var(--color-primary); 
+            border-color: var(--color-primary);
+            border-radius: 8px; 
+            padding: 0.75rem 1.5rem; 
+            font-weight: 600;
+        }
+        
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+            border-color: #1d4ed8;
+            transform: translateY(-1px);
+        }
+        
+        /* Form controls */
+        .form-control { 
+            background-color: #f9fafb; 
+            border: 1px solid #e5e7eb; 
+            padding: 0.75rem; 
+            border-radius: 8px; 
+        }
+        
+        .form-control:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        /* Typography */
+        .page-header {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-text-main);
+            margin-bottom: 1.5rem;
+        }
+        
+        .section-header {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--color-text-main);
+            margin-bottom: 1rem;
+        }
+        
+        .text-muted-custom {
+            color: var(--color-text-muted) !important;
+        }
+        
+        /* Hover effects */
+        .hover-card:hover {
+            transform: translateY(-5px);
+            transition: transform 0.2s ease-in-out;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+        }
+        
+        /* Progress bar styling */
+        .progress {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #e5e7eb;
+        }
+        
+        .progress-bar {
+            border-radius: 4px;
+            background-color: var(--color-primary);
+        }
+        
+        /* Dropdown menu */
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+        
+        /* Event rows */
+        .event-row {
+            background: var(--color-card);
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 0.75rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: all 0.2s ease;
+        }
+        
+        .event-row:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        /* Navigation */
+        .top-nav {
+            background: var(--color-card);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        {% block content %}{% endblock %}
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
